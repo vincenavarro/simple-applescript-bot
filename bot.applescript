@@ -30,6 +30,7 @@ global captchaLocYOffset
 global captchaLocYMax
 global captchaColor
 
+tell application "System Events" to tell application process "Firefox Developer Edition" to set size of window 1 to {942, 800}
 tell application "Firefox Developer Edition" to activate
 
 repeat
@@ -76,7 +77,8 @@ repeat
 end repeat
 
 on getPixel(x, y)
-	return do shell script "screencapture -R" & x & "," & y & ",1,1 -t bmp $TMPDIR/test.bmp && xxd -p -l 3 -s 54 $TMPDIR/test.bmp | sed 's/\\(..\\)\\(..\\)\\(..\\)/\\3\\2\\1/'"
+	set {offX, offY} to getWindowOffset()
+	return do shell script "screencapture -R" & x + offX & "," & y + offY & ",1,1 -t bmp $TMPDIR/test.bmp && xxd -p -l 3 -s 54 $TMPDIR/test.bmp | sed 's/\\(..\\)\\(..\\)\\(..\\)/\\3\\2\\1/'"
 end getPixel
 
 on sendRequest(req)
@@ -102,3 +104,9 @@ on checkForCaptcha()
 	end repeat
 	showError("Captcha Not Found")
 end checkForCaptcha
+
+on getWindowOffset()
+	tell application "System Events" to tell application process "Firefox Developer Edition"
+		return get position of window 1
+	end tell
+end getWindowOffset
