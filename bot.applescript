@@ -8,10 +8,11 @@ set spawnLocX to 392
 set spawnLocY to 690 -- set to a low point so it only triggers on fresh spawns not previous
 
 -- captcha detection
-set captchaLocX to 0
-set captchaLocYOffset to 50 -- set to the minimum height to flag as a possible captcha
-set captchaLocYMax to 1280 --screen height
-set captchaColor to "000000"
+set captchaLocX to 312
+set captchaLocYOffset to 50 -- 2L: 48 set to the minimum height to flag as a possible captcha
+set captchaLocYMax to 800 --screen height, 1280x800
+set captchaColor to "fcb420" --TBD
+
 
 -- pokemon rarity color codes
 set common to "0d4eff"
@@ -21,6 +22,13 @@ set superrare to "f8f600"
 set legendary to "9c00ff"
 set shiny to "fb99cf"
 
+checkForCaptcha()
+error number -128 --exit
+
+global captchaLocX
+global captchaLocYOffset
+global captchaLocYMax
+global captchaColor
 
 tell application "Firefox Developer Edition" to activate
 
@@ -83,3 +91,14 @@ on showError(message)
 	display dialog message
 	tell application "Firefox Developer Edition" to activate
 end showError
+
+on checkForCaptcha()
+	set searchY to 0
+	repeat while searchY < captchaLocYMax - captchaLocYOffset
+		if getPixel(captchaLocX, searchY) is captchaColor and getPixel(captchaLocX, searchY + captchaLocYOffset) is captchaColor then
+			showError("Captcha Found")
+		end if
+		set searchY to searchY + (captchaLocYOffset / 2)
+	end repeat
+	showError("Captcha Not Found")
+end checkForCaptcha
